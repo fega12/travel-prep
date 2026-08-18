@@ -1,0 +1,5 @@
+# 本地 agent 数据（WorkBuddy 项目记忆等），不应纳入版本管理/公开
+.workbuddy/
+
+# macOS 元数据
+.DS_Store
