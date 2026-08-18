@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭出游用品准备清单 · 一家四口</title>
+<style>
+  :root{
+    --bg:#f4f7fb; --card:#ffffff; --ink:#1f2d3d; --muted:#7a8aa0;
+    --line:#e4ebf3; --brand:#2f7df6; --brand-soft:#eaf2ff;
+    --ok:#22b07d; --warn:#f0a020; --danger:#ef5350; --kid:#ff7eb3;
+    --shadow:0 6px 22px rgba(31,45,61,.08);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:920px;margin:0 auto;padding:18px 16px 60px}
+  header{background:linear-gradient(135deg,#2f7df6,#5b9bff);color:#fff;border-radius:18px;padding:22px 22px 20px;
+    box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header h1{margin:0 0 4px;font-size:22px;letter-spacing:.5px}
+  header p{margin:0;opacity:.92;font-size:14px}
+  .trip-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:16px}
+  .trip-field{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:8px 10px}
+  .trip-field label{display:block;font-size:11px;opacity:.85;margin-bottom:2px}
+  .trip-field input,.trip-field select{width:100%;border:none;background:transparent;color:#fff;font-size:14px;font-weight:600;outline:none}
+  .trip-field input::placeholder{color:rgba(255,255,255,.7)}
+  .trip-field select option{color:#1f2d3d}
+  .members{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .member{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.18);border-radius:20px;padding:4px 6px 4px 4px}
+  .member .dot{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff;border:none}
+  .member input{border:none;background:transparent;color:#fff;font-size:13px;width:64px;outline:none;font-weight:600}
+  .member input::placeholder{color:rgba(255,255,255,.7)}
+
+  .progress-card{background:var(--card);border-radius:16px;padding:16px;margin:16px 0;box-shadow:var(--shadow)}
+  .prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .prog-top b{font-size:18px}
+  .prog-top span{color:var(--muted);font-size:13px}
+  .bar{height:12px;background:var(--line);border-radius:99px;overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#22b07d,#4cd1a0);border-radius:99px;transition:width .4s}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;text-align:center}
+  .stat{background:var(--brand-soft);border-radius:12px;padding:10px}
+  .stat b{display:block;font-size:20px;color:var(--brand)}
+  .stat span{font-size:12px;color:var(--muted)}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+  .toolbar input[type=text]{flex:1;min-width:160px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font-size:14px;outline:none}
+  .toolbar input[type=text]:focus{border-color:var(--brand)}
+  .btn{border:none;background:var(--brand);color:#fff;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+  .btn.ghost{background:var(--brand-soft);color:var(--brand)}
+  .btn.warn{background:#fff0e0;color:var(--warn)}
+  .btn:active{transform:translateY(1px)}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .chip{padding:7px 13px;border-radius:99px;background:#fff;border:1px solid var(--line);font-size:13px;cursor:pointer;color:var(--muted)}
+  .chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+  .cat{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+  .cat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none}
+  .cat-head .ico{font-size:20px}
+  .cat-head h3{margin:0;font-size:16px;flex:1}
+  .cat-head .cnt{font-size:12px;color:var(--muted);background:var(--bg);border-radius:99px;padding:3px 10px}
+  .cat-head .arrow{transition:transform .25s;color:var(--muted)}
+  .cat.collapsed .arrow{transform:rotate(-90deg)}
+  .cat-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px 14px;padding:6px 16px 16px}
+  .cat.collapsed .cat-body{display:none}
+
+  .item{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px dashed var(--line)}
+  .item:last-child{border-bottom:none}
+  .item input[type=checkbox]{width:20px;height:20px;accent-color:var(--ok);cursor:pointer;flex-shrink:0}
+  .item .name{flex:1;font-size:14px}
+  .item.done .name{text-decoration:line-through;color:var(--muted)}
+  .item .who{display:flex;gap:3px}
+  .item .who span{width:20px;height:20px;border-radius:50%;font-size:10px;display:grid;place-items:center;color:#fff}
+  .item .qty{font-size:12px;color:var(--muted);background:var(--bg);border-radius:8px;padding:1px 7px}
+  .item .del{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;line-height:1;padding:2px 4px}
+  .item .del:hover{color:var(--danger)}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px}
+  .add-row{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px 14px}
+  .add-row input[type=text]{flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;outline:none}
+  .add-row select{padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:13px;outline:none}
+  .add-row .btn{padding:8px 12px;font-size:13px}
+
+  /* 出门前家中检查 */
+  .home-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;border:2px solid #ffe1bf}
+  .home-card .h-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;
+    background:linear-gradient(135deg,#ff9a4d,#ffb96b);color:#fff}
+  .home-card .h-head .ico{font-size:20px}
+  .home-card .h-head h3{margin:0;font-size:16px;flex:1}
+  .home-card .h-head .cnt{font-size:12px;background:rgba(255,255,255,.28);border-radius:99px;padding:3px 10px}
+  .home-card .h-head .arrow{transition:transform .25s}
+  .home-card.collapsed .arrow{transform:rotate(-90deg)}
+  .home-card .h-body{padding:4px 16px 8px}
+  .home-card.collapsed .h-body{display:none}
+  .home-card .h-sub{font-size:12px;color:var(--muted);margin:8px 0 6px}
+  .home-card .mini-bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:0 0 10px}
+  .home-card .mini-bar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9a4d,#ffc488);border-radius:99px;transition:width .4s}
+
+  @media print{
+    header,.toolbar,.filters,.add-row,.del,.btn{display:none!important}
+    body{background:#fff}
+    .cat,.progress-card,.home-card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}
+    .bar > i{background:#22b07d!important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🧳 家庭出游用品准备清单</h1>
+    <p>一家四口 · 2 大 2 小 · 收拾行李不漏项</p>
+    <div class="trip-grid">
+      <div class="trip-field"><label>目的地</label><input id="tripDest" placeholder="如：三亚 / 北京"></div>
+      <div class="trip-field"><label>出发日期</label><input id="tripStart" type="date"></div>
+      <div class="trip-field"><label>返程日期</label><input id="tripEnd" type="date"></div>
+      <div class="trip-field"><label>天数</label><input id="tripDays" type="number" min="1" placeholder="自动算"></div>
+    </div>
+    <div class="members" id="members"></div>
+  </header>
+
+  <div class="progress-card">
+    <div class="prog-top">
+      <b id="progText">已准备 0 / 0</b>
+      <span id="tripInfo">还没填写行程～</span>
+    </div>
+    <div class="bar"><i id="progBar"></i></div>
+    <div class="stats">
+      <div class="stat"><b id="stTotal">0</b><span>总物品</span></div>
+      <div class="stat"><b id="stDone">0</b><span>已装好</span></div>
+      <div class="stat"><b id="stLeft">0</b><span>待准备</span></div>
+    </div>
+  </div>
+
+  <div class="home-card" id="homeCard">
+    <div class="h-head" id="homeHead">
+      <span class="ico">🏠</span>
+      <h3>出门前 · 家中检查</h3>
+      <span class="cnt" id="homeCnt">0/0</span>
+      <span class="arrow">▾</span>
+    </div>
+    <div class="h-body" id="homeBody">
+      <div class="h-sub">出发当天逐条确认，勾完再锁门 🔒</div>
+      <div class="mini-bar"><i id="homeBar"></i></div>
+      <div id="homeItems"></div>
+      <div class="add-row" id="homeAdd">
+        <input type="text" id="homeInput" placeholder="添加检查项…">
+        <button class="btn" id="homeAddBtn">＋ 添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" type="text" placeholder="🔍 搜索物品，如：充电器、退烧药…">
+    <button class="btn ghost" id="printBtn">🖨 打印清单</button>
+    <button class="btn warn" id="resetBtn">↺ 重置</button>
+  </div>
+  <div class="filters" id="filters"></div>
+
+  <div id="cats"></div>
+
+  <footer>
+    数据自动保存在本机浏览器（localStorage），换电脑不会同步。<br>
+    勾选即代表已装入行李箱 ✅ 祝你旅途愉快！
+  </footer>
+</div>
+
+<script>
+const STORE_KEY = "family_travel_prep_v1";
+const COLORS = ["#2f7df6","#ff7eb3","#22b07d","#f0a020"];
+
+// 默认成员
+const defaultMembers = [
+  {name:"爸爸",emoji:"👨"},
+  {name:"妈妈",emoji:"👩"},
+  {name:"大宝",emoji:"🧒"},
+  {name:"小宝",emoji:"👶"},
+];
+
+// 默认清单（cat: 类别, items: [{n:名称, w:适用成员索引数组, q:数量}])
+const defaultCats = [
+  {id:"doc",icon:"📄",name:"证件 & 财务",items:[
+    {n:"身份证",w:[0,1],q:2},{n:"户口本/出生证明(儿童)",w:[2,3],q:2},
+    {n:"护照/签证(出境)",w:[0,1,2,3],q:4},{n:"现金 & 零钱",w:[0],q:1},
+    {n:"银行卡/信用卡",w:[0],q:2},{n:"机票/车票/酒店订单",w:[0,1],q:1},
+    {n:"驾照(自驾)",w:[0],q:1},{n:"学生证/优惠证件",w:[2],q:1},
+    {n:"旅游保险单",w:[0],q:1},
+  ]},
+  {id:"cloth",icon:"👕",name:"衣物",items:[
+    {n:"内衣裤",w:[0,1,2,3],q:8},{n:"袜子",w:[0,1,2,3],q:8},
+    {n:"T恤/上衣",w:[0,1,2,3],q:12},{n:"长裤/短裤",w:[0,1,2,3],q:8},
+    {n:"外套/防风衣",w:[0,1,2,3],q:4},{n:"睡衣",w:[0,1,2,3],q:4},
+    {n:"运动鞋",w:[0,1,2,3],q:4},{n:"凉鞋/拖鞋",w:[0,1,2,3],q:4},
+    {n:"帽子/遮阳帽",w:[0,1,2,3],q:4},{n:"儿童雨衣",w:[2,3],q:2},
+    {n:"泳衣/泳裤",w:[0,1,2,3],q:4},{n:"换洗衣物袋",w:[0],q:1},
+  ]},
+  {id:"wash",icon:"🧴",name:"洗漱 & 护肤",items:[
+    {n:"牙刷牙膏",w:[0,1,2,3],q:4},{n:"洗发水/沐浴露",w:[0,1],q:2},
+    {n:"毛巾/浴巾",w:[0,1,2,3],q:4},{n:"防晒霜",w:[0,1,2,3],q:2},
+    {n:"儿童润肤露",w:[2,3],q:1},{n:"湿巾/纸巾",w:[0,1],q:4},
+    {n:"梳子",w:[0,1],q:2},{n:"护肤品/化妆品",w:[1],q:1},
+  ]},
+  {id:"elec",icon:"🔌",name:"电子 & 充电",items:[
+    {n:"手机 & 充电器",w:[0,1],q:2},{n:"儿童电话手表",w:[2],q:1},
+    {n:"充电宝",w:[0,1],q:2},{n:"数据线",w:[0,1,2],q:3},
+    {n:"耳机",w:[0,1],q:2},{n:"相机/运动相机",w:[0],q:1},
+    {n:"插线板/转换插头",w:[0],q:1},{n:"车载充电器(自驾)",w:[0],q:1},
+  ]},
+  {id:"med",icon:"💊",name:"药品 & 健康",items:[
+    {n:"退烧药(儿童专用)",w:[2,3],q:1},{n:"感冒药",w:[0,1],q:1},
+    {n:"腹泻/肠胃药",w:[0,1],q:1},{n:"创可贴",w:[0],q:1},
+    {n:"碘伏棉签",w:[0],q:1},{n:"晕车药/晕车贴",w:[0,1,2,3],q:4},
+    {n:"过敏药",w:[0,1],q:1},{n:"体温计",w:[0],q:1},
+    {n:"防蚊液",w:[0,1,2,3],q:2},{n:"口罩",w:[0,1,2,3],q:8},
+    {n:"常用药(慢病)",w:[0,1],q:2},
+  ]},
+  {id:"kid",icon:"🧸",name:"儿童专属",items:[
+    {n:"奶瓶/水壶",w:[3],q:2},{n:"奶粉/辅食",w:[3],q:1},
+    {n:"尿不湿",w:[3],q:20},{n:"隔汗巾/围兜",w:[2,3],q:6},
+    {n:"安抚玩具/绘本",w:[2,3],q:4},{n:"儿童零食",w:[2,3],q:4},
+    {n:"便携餐椅套",w:[2,3],q:1},{n:"儿童太阳镜",w:[2,3],q:2},
+  ]},
+  {id:"food",icon:"🍫",name:"途中 & 食物",items:[
+    {n:"矿泉水",w:[0,1],q:6},{n:"零食/坚果",w:[0,1],q:4},
+    {n:"水果",w:[0,1],q:2},{n:"保温杯",w:[0,1,2,3],q:4},
+    {n:"一次性雨衣",w:[0,1,2,3],q:4},{n:"垃圾袋",w:[0],q:1},
+  ]},
+  {id:"misc",icon:"🎒",name:"其他 & 应急",items:[
+    {n:"行李箱/背包",w:[0,1],q:4},{n:"折叠伞",w:[0,1],q:2},
+    {n:"指甲刀",w:[0],q:1},{n:"针线包",w:[0],q:1},
+    {n:"备用塑料袋",w:[0],q:5},{n:"手电筒",w:[0],q:1},
+    {n:"笔 & 小本子",w:[0,1],q:1},{n:"家门钥匙",w:[0,1],q:2},
+  ]},
+];
+
+// 出门前家中检查（出发当天确认，与打包分开）
+const defaultHome = [
+  {n:"关闭燃气总阀 / 灶具",done:false},
+  {n:"检查并关闭所有水龙头",done:false},
+  {n:"拔掉非必要电器插头 / 拉闸",done:false},
+  {n:"锁好门窗（含阳台、卫生间）",done:false},
+  {n:"关闭空调 / 暖气",done:false},
+  {n:"关闭热水器 / 电闸",done:false},
+  {n:"关灯（含走廊、卫生间）",done:false},
+  {n:"带走家门钥匙并确认携带",done:false},
+  {n:"倒垃圾 / 清理冰箱易坏食物",done:false},
+  {n:"收快递 / 暂停报纸订阅",done:false},
+  {n:"浇花 / 托付宠物照看",done:false},
+  {n:"告知邻居或亲友行程",done:false},
+  {n:"检查燃气报警器正常",done:false},
+  {n:"锁好信箱 / 记录水电表读数",done:false},
+];
+
+let state = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw){
+      const s = JSON.parse(raw);
+      if(!s.home) s.home = {items: JSON.parse(JSON.stringify(defaultHome)), collapsed:false};
+      return s;
+    }
+  }catch(e){}
+  return {
+    members: defaultMembers.map(m=>({...m})),
+    cats: JSON.parse(JSON.stringify(defaultCats)),
+    home: {items: JSON.parse(JSON.stringify(defaultHome)), collapsed:false},
+    trip: {dest:"",start:"",end:"",days:""},
+    filter: "all",
+    collapsed: {},
+  };
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+
+/* ---- 成员渲染 ---- */
+function renderMembers(){
+  const box = document.getElementById("members");
+  box.innerHTML = "";
+  state.members.forEach((m,i)=>{
+    const el = document.createElement("div");
+    el.className = "member";
+    el.innerHTML = `<button class="dot" style="background:${COLORS[i%4]}" data-i="${i}">${m.emoji}</button>
+      <input value="${m.name}" data-i="${i}" maxlength="6">`;
+    box.appendChild(el);
+  });
+  box.querySelectorAll(".dot").forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i; state.members[i].emoji = prompt("换一个表情(单个emoji):", state.members[i].emoji)||state.members[i].emoji; save(); renderMembers(); renderCats();
+  });
+  box.querySelectorAll("input").forEach(inp=>inp.oninput=()=>{
+    state.members[+inp.dataset.i].name = inp.value; save(); renderCats();
+  });
+}
+
+/* ---- 行程 ---- */
+function bindTrip(){
+  const map = {tripDest:"dest",tripStart:"start",tripEnd:"end",tripDays:"days"};
+  Object.entries(map).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    el.value = state.trip[key]||"";
+    el.oninput = ()=>{ state.trip[key]=el.value; calcDays(); save(); renderTripInfo(); };
+  });
+}
+function calcDays(){
+  const {start,end} = state.trip;
+  if(start && end){
+    const d = Math.round((new Date(end)-new Date(start))/86400000)+1;
+    if(d>0){ state.trip.days = d; document.getElementById("tripDays").value=d; }
+  }
+}
+function renderTripInfo(){
+  const t = state.trip;
+  const el = document.getElementById("tripInfo");
+  if(t.dest || t.start){
+    let s = t.dest?`📍 ${t.dest}`:"";
+    if(t.start && t.end) s += ` · ${t.start} ~ ${t.end}`;
+    if(t.days) s += ` · 共 ${t.days} 天`;
+    el.textContent = s || "还没填写行程～";
+  }else el.textContent = "还没填写行程～";
+}
+
+/* ---- 筛选条 ---- */
+function renderFilters(){
+  const box = document.getElementById("filters");
+  const opts = [{k:"all",t:"全部"},{k:"todo",t:"待准备"},{k:"done",t:"已装好"}];
+  box.innerHTML = "";
+  opts.forEach(o=>{
+    const c = document.createElement("div");
+    c.className = "chip"+(state.filter===o.k?" active":"");
+    c.textContent = o.t;
+    c.onclick = ()=>{ state.filter=o.k; save(); renderFilters(); renderCats(); };
+    box.appendChild(c);
+  });
+}
+
+/* ---- 清单渲染 ---- */
+function isDone(catIdx,itemIdx){
+  const done = state.cats[catIdx].items[itemIdx].done;
+  return !!done;
+}
+function renderCats(){
+  const wrap = document.getElementById("cats");
+  wrap.innerHTML = "";
+  const q = (document.getElementById("search").value||"").trim().toLowerCase();
+  state.cats.forEach((cat,ci)=>{
+    const items = cat.items.map((it,ii)=>({it,ii})).filter(({it})=>{
+      if(q && !it.n.toLowerCase().includes(q)) return false;
+      if(state.filter==="todo" && it.done) return false;
+      if(state.filter==="done" && !it.done) return false;
+      return true;
+    });
+    if(q && items.length===0) return;
+
+    const doneCount = cat.items.filter(i=>i.done).length;
+    const total = cat.items.length;
+    const collapsed = state.collapsed[cat.id] && !q;
+
+    const el = document.createElement("div");
+    el.className = "cat"+(collapsed?" collapsed":"");
+    let head = `<div class="cat-head" data-ci="${ci}">
+        <span class="ico">${cat.icon}</span>
+        <h3>${cat.name}</h3>
+        <span class="cnt">${doneCount}/${total}</span>
+        <span class="arrow">▾</span>
+      </div>`;
+    let body = `<div class="cat-body">`;
+    items.forEach(({it,ii})=>{
+      const who = (it.w||[]).map(wi=>{
+        const m = state.members[wi]||{emoji:"?",name:""};
+        return `<span title="${m.name}" style="background:${COLORS[wi%4]}">${m.emoji}</span>`;
+      }).join("");
+      body += `<div class="item ${it.done?"done":""}" data-ci="${ci}" data-ii="${ii}">
+          <input type="checkbox" ${it.done?"checked":""} data-ci="${ci}" data-ii="${ii}">
+          <div class="name">${it.n}</div>
+          <div class="who">${who}</div>
+          ${it.q>1?`<span class="qty">×${it.q}</span>`:""}
+          <button class="del" data-ci="${ci}" data-ii="${ii}" title="删除">✕</button>
+        </div>`;
+    });
+    body += `</div>`;
+    // 添加行
+    body += `<div class="add-row" data-ci="${ci}">
+        <input type="text" placeholder="添加物品…" data-ci="${ci}">
+        <select data-ci="${ci}">${state.members.map((m,i)=>`<option value="${i}">${m.emoji}${m.name}</option>`).join("")}</select>
+        <button class="btn" data-ci="${ci}">＋ 添加</button>
+      </div>`;
+
+    el.innerHTML = head+body;
+    wrap.appendChild(el);
+  });
+
+  // 事件绑定
+  wrap.querySelectorAll(".cat-head").forEach(h=>h.onclick=()=>{
+    const id = state.cats[+h.dataset.ci].id;
+    state.collapsed[id] = !state.collapsed[id]; save(); renderCats();
+  });
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.onchange=()=>{
+    const ci=+cb.dataset.ci, ii=+cb.dataset.ii;
+    state.cats[ci].items[ii].done = cb.checked; save(); renderCats(); renderProgress();
+  });
+  wrap.querySelectorAll(".del").forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    const ci=+b.dataset.ci, ii=+b.dataset.ii;
+    state.cats[ci].items.splice(ii,1); save(); renderCats(); renderProgress();
+  });
+  wrap.querySelectorAll(".add-row").forEach(row=>{
+    const ci=+row.dataset.ci;
+    const add = ()=>{
+      const inp = row.querySelector("input"); const sel = row.querySelector("select");
+      const name = inp.value.trim();
+      if(!name) return;
+      state.cats[ci].items.push({n:name, w:[+sel.value], q:1, done:false});
+      save(); inp.value=""; renderCats(); renderProgress();
+    };
+    row.querySelector(".btn").onclick=add;
+    row.querySelector("input").onkeydown=(e)=>{ if(e.key==="Enter") add(); };
+  });
+}
+
+/* ---- 出门前家中检查渲染 ---- */
+function renderHome(){
+  const box = document.getElementById("homeItems");
+  box.innerHTML = "";
+  const q = (document.getElementById("search").value||"").trim().toLowerCase();
+  state.home.items.forEach((it,ii)=>{
+    if(q && !it.n.toLowerCase().includes(q)) return;
+    const row = document.createElement("div");
+    row.className = "item"+(it.done?" done":"");
+    row.innerHTML = `<input type="checkbox" ${it.done?"checked":""} data-ii="${ii}">
+        <div class="name">${it.n}</div>
+        <button class="del" data-ii="${ii}" title="删除">✕</button>`;
+    box.appendChild(row);
+  });
+  const total = state.home.items.length;
+  const done = state.home.items.filter(i=>i.done).length;
+  document.getElementById("homeCnt").textContent = `${done}/${total}`;
+  document.getElementById("homeBar").style.width = (total?Math.round(done/total*100):0)+"%";
+
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.onchange=()=>{
+    const ii=+cb.dataset.ii;
+    state.home.items[ii].done = cb.checked; save(); renderHome();
+  });
+  box.querySelectorAll(".del").forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    state.home.items.splice(+b.dataset.ii,1); save(); renderHome();
+  });
+}
+function bindHome(){
+  document.getElementById("homeHead").onclick = ()=>{
+    state.home.collapsed = !state.home.collapsed; save(); renderHomeHead();
+  };
+  const add = ()=>{
+    const inp = document.getElementById("homeInput");
+    const name = inp.value.trim();
+    if(!name) return;
+    state.home.items.push({n:name, done:false}); save(); inp.value=""; renderHome();
+  };
+  document.getElementById("homeAddBtn").onclick = add;
+  document.getElementById("homeInput").onkeydown = (e)=>{ if(e.key==="Enter") add(); };
+}
+function renderHomeHead(){
+  document.getElementById("homeCard").classList.toggle("collapsed", !!state.home.collapsed);
+}
+
+/* ---- 进度 ---- */
+function renderProgress(){
+  let total=0, done=0;
+  state.cats.forEach(c=>c.items.forEach(it=>{ total++; if(it.done) done++; }));
+  const left = total-done;
+  const pct = total? Math.round(done/total*100):0;
+  document.getElementById("progText").textContent = `已准备 ${done} / ${total}`;
+  document.getElementById("progBar").style.width = pct+"%";
+  document.getElementById("stTotal").textContent = total;
+  document.getElementById("stDone").textContent = done;
+  document.getElementById("stLeft").textContent = left;
+}
+
+/* ---- 工具栏 ---- */
+document.getElementById("search").oninput = ()=>{ renderCats(); renderHome(); };
+document.getElementById("printBtn").onclick = ()=>window.print();
+document.getElementById("resetBtn").onclick = ()=>{
+  if(confirm("确定要重置为默认清单吗？当前勾选和自定义项目都会清空。")){
+    localStorage.removeItem(STORE_KEY);
+    state = load();
+    bindTrip(); renderMembers(); renderFilters(); renderCats(); renderProgress(); renderTripInfo();
+    renderHomeHead(); renderHome();
+  }
+};
+
+/* ---- 初始化 ---- */
+bindTrip();
+renderMembers();
+renderFilters();
+renderCats();
+renderProgress();
+renderTripInfo();
+bindHome();
+renderHomeHead();
+renderHome();
+</script>
+</body>
+</html>
